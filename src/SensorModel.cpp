@@ -79,46 +79,99 @@ Result SensorModel::detectedPixel(uint16_t x, uint16_t y)
 
 void SensorModel::MainLoop()
 {
-	cv::VideoCapture cap(0);
-	if (!cap.isOpened())
-	{
-		printf("Stream open error\n");
-		return;
-	}
+    cv::VideoCapture cap(0);
+    if (!cap.isOpened()) 
+    {
+        printf("Stream open error\n");
+        return;
+    }
 
-	cv::Ptr<cv::cuda::BackgroundSubtractorMOG2> subtractor = cv::cuda::createBackgroundSubtractorMOG2(500, 16, true);
+    // Create background subtractor
+    cv::Ptr<cv::cuda::BackgroundSubtractorMOG2> subtractor = cv::cuda::createBackgroundSubtractorMOG2(500, 16, true);
 
-	while (true)
-	{
-		cv::Mat frame;
-		if(!cap.read(frame))
-		{
-			printf("Failed to capture a frame\n");
-			break;
-		}
+    // Initialize variables
+    cv::Mat frame, fgmask, labels, stats, centroids;
+    cap.read(frame); // Read first frame to get dimensions
+    cv::cuda::GpuMat gpu_frame, gpu_fgmask, gpuCleanMask;
+   
+    uint16_t minBlobArea = 1000;  // Ignore blobs smaller than this (needs tuned)
+    cv::Mat erodeKernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    cv::Mat dilateKernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    cv::Ptr<cv::cuda::Filter> erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, CV_8UC1, erodeKernel);
+    cv::Ptr<cv::cuda::Filter> dilateFilter = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, CV_8UC1, dilateKernel);
 
-		cv::cuda::GpuMat gpu_frame;
-		gpu_frame.upload(frame);
+    while (true) 
+    {
+        // Capture frame
+        if (!cap.read(frame)) 
+        {
+            printf("Failed to capture a frame\n");
+            break;
+        }
 
-		cv::cuda::GpuMat gpu_fgmask;
-		subtractor -> apply(gpu_frame, gpu_fgmask, -1);
+        // Upload frame to GPU
+        gpu_frame.upload(frame);
 
-		cv::Mat fgmask;
-		gpu_fgmask.download(fgmask);
+        // Apply background subtraction
+        subtractor->apply(gpu_frame, gpu_fgmask, -1);
+        
+        // Morphology on GPU foreground mask to clean up the salt/pepper noise
+        erodeFilter->apply(gpu_fgmask, gpuCleanMask);
+        dilateFilter->apply(gpuCleanMask, gpuCleanMask);  // Erode then dilate
 
-		cv::Mat foreground;
-		cv::bitwise_and(frame, frame, foreground, fgmask);
+/*
+        // Update accumulated mask (bitwise OR)
+        cv::cuda::bitwise_or(gpuCleanMask, gpu_accumulated_mask, gpu_accumulated_mask);
 
-		cv::imshow("Original frame", frame);
-		cv::imshow("Foreground Mask", fgmask);
-		cv::imshow("Foreground", foreground);
+        // Download masks for display (optional)
+        cv::Mat fgmask;
+        gpu_fgmask.download(fgmask);
 
-		if (cv::waitKey(1) == 'q')
-		{
-			break;
-		}
-	}
+        cv::Mat accumulated_mask;
+        gpu_accumulated_mask.download(accumulated_mask);
+*/
+	
+	// Download to CPU for detailed stats and filtering
+        gpuCleanMask.download(fgmask);
 
-	cap.release();
-	cv::destroyAllWindows();
+        // Connected components with stats on CPU
+        int nLabels = cv::connectedComponentsWithStats(fgmask, labels, stats, centroids, 8, CV_32S);
+
+        // Detect and draw/filter blobs
+        for (int i = 1; i < nLabels; ++i) // Skip background (label 0)
+        {  
+            int area = stats.at<int>(i, cv::CC_STAT_AREA);
+            if (area >= minBlobArea) 
+            {
+                // Significant blob found: Get bounding box
+                int x = stats.at<int>(i, cv::CC_STAT_LEFT);
+                int y = stats.at<int>(i, cv::CC_STAT_TOP);
+                int w = stats.at<int>(i, cv::CC_STAT_WIDTH);
+                int h = stats.at<int>(i, cv::CC_STAT_HEIGHT);
+                cv::rectangle(frame, cv::Rect(x, y, w, h), cv::Scalar(0, 255, 0), 2);
+
+                // Centroid for tracking if needed
+                double cx = centroids.at<double>(i, 0);
+                double cy = centroids.at<double>(i, 1);
+                // Use for further processing, e.g., output or tracking
+                std::cout << "Blob " << i << ": Area=" << area << ", Center=(" << cx << "," << cy << ")" << std::endl;
+            }
+        }
+	printf("--\n");
+
+	/*
+        cv::imshow("Original with Blobs", frame);
+        cv::imshow("Clean Mask", fgmask);
+        */
+
+        // Break loop on 'q' key press
+        if (cv::waitKey(1) == 'q') 
+        {
+            break;
+        }
+    }
+
+    // Release resources
+    cap.release();
+    cv::destroyAllWindows();
 }
