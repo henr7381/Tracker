@@ -1,0 +1,108 @@
+This is going to be documentation for this project
+
+
+
+
+========== Misc ==========
+
+--- MathHelp.h ---
+
+double toRads(double angle)
+	Param [in]   angle       angle in degrees
+	Return [out]             angle in radians
+
+--- Vector.h ---
+
+struct Point3D
+Members:
+	x
+	y
+	z
+Operators:
+	Point3D + Point3D
+
+
+struct Vector3D
+Members:
+	x
+	y
+	z
+Operators:
+	Vector3D + Vector3D
+	Vector3D - Vector3D
+	Vector3D * scalar constant
+	Vector3D / scalar constant
+	Vector3D (dot) Vector3D
+	Vector3D (cross) Vector3D
+Functions:
+	double magnitude()	returns magnitude
+	Vector3D normalize()	returns the normalized version of the vector
+	Vector3D matrixMultiply(double matrix[3][3])
+		Param [in]   matrix	3x3 rotation matrix
+		Return [out] 		The calling object rotated by the matrix
+
+struct Ray
+Members:
+	Point3D origin
+	Vector3D vector
+
+========== Test infrastructure ==========
+
+--- Test.h ---
+
+To build in test mode, uncomment the TESTBUILD macro in the header file
+
+--- Test.cpp ---
+
+void test()
+
+========== Sensor Model ==========
+
+--- SensorModel.h ---
+
+Result = std::variant<Ray, int>
+
+class SensorModel
+Constructor:
+	SensorModel(Vector3D, Point3D)
+		Vector3D - The direction the camera is pointing
+		Point3D  - The center of the sensor glass
+Members:
+	Xres     - FP pixel width
+	Yres     - FP pixel height
+	Horz_fov - FP FOV width
+	Vert_fov - FP FOV height
+	principal_X  - The pixel distance from the center of the FP to the X 
+		       edge of the FP
+	principal_Y  - The pixel distance from the center of the FP to the Y
+		       edge of the FP
+	focal_length     - The distance from the focal plane to the sensor glass
+	CameraLocation_W - The world location of the sensor glass
+	CameraFrameX_W   - The world vector describing the x axis of the 
+			   sensor's coordinate frame
+	CameraFrameY_W   - The world vector describing the y axis of the
+			   sensor's coordinate frame
+	CameraFrameZ_W   - The world vector describing the z axis of the 
+			   sensor's coordinate frame
+	DetectedVector_L - The object specific sensor frame vector
+			   describing a vector to the latest
+			   detected pixel on the object's FP
+	DetectedRay_W    - A world ray describing the latest sensor-to-pixel
+			   detection
+Functions:
+	void MainLoop()
+	Result detectedPixel(x, y)
+		Param [in]  x	FP pixel x location
+		Param [in]  y	FP pixel y location
+		Param [out] 	The result, either a Ray or error code
+	void ProceccImage()
+
+
+
+
+
+
+
+
+
+

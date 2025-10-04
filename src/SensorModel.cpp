@@ -118,20 +118,8 @@ void SensorModel::MainLoop()
         // Morphology on GPU foreground mask to clean up the salt/pepper noise
         erodeFilter->apply(gpu_fgmask, gpuCleanMask);
         dilateFilter->apply(gpuCleanMask, gpuCleanMask);  // Erode then dilate
-
-/*
-        // Update accumulated mask (bitwise OR)
-        cv::cuda::bitwise_or(gpuCleanMask, gpu_accumulated_mask, gpu_accumulated_mask);
-
-        // Download masks for display (optional)
-        cv::Mat fgmask;
-        gpu_fgmask.download(fgmask);
-
-        cv::Mat accumulated_mask;
-        gpu_accumulated_mask.download(accumulated_mask);
-*/
 	
-	// Download to CPU for detailed stats and filtering
+	    // Download to CPU for detailed stats and filtering
         gpuCleanMask.download(fgmask);
 
         // Connected components with stats on CPU
