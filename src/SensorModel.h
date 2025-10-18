@@ -42,8 +42,8 @@ public:
 #ifndef TESTBUILD
 private:
 #endif
-	static constexpr uint16_t Xres = 2560;		// in pixels
-	static constexpr uint16_t Yres = 1440;		// in pixels
+	static constexpr uint16_t Xres = 800;		// in pixels 2560
+	static constexpr uint16_t Yres = 600;		// in pixels 1440
 
 	static constexpr double Horz_fov = 85;		// in DEG
 	static constexpr double Vert_fov = 54.6;	// in DEG
@@ -58,7 +58,8 @@ private:
 	Vector3D CameraFrameZ_W {};
 	Vector3D DetectedVector_L {};
 
-	std::string pipeline = "v4l2src device=/dev/video0 ! image/jpeg, width=2560, height=1440, framerate=30/1 ! jpegdec ! videoconvert ! appsink";
+	static constexpr uint16_t frameRate = 10;	// FPS of captures
+	std::string pipeline = "v4l2src device=/dev/video0 ! image/jpeg, width=" + std::to_string(Xres) + ", height=" + std::to_string(Yres) + ", framerate=" + std::to_string(frameRate) + "/1 ! jpegdec ! videoconvert ! appsink";
 	cv::VideoCapture cap;
 
 	// Create background subtractor

@@ -8,6 +8,7 @@
 // User includes
 #include "SensorModel.h"
 #include "Test.h"
+#include "VoxelGrid.h"
 
 
 #define ever (;;)
@@ -25,15 +26,17 @@ int main(int argc, char** argv)
 	
 	// Then we only have to worry about placing the sensors with decimeter accuracy. 
 
-	const int N = 500;		// Voxel grid size (50m^3)
+    VoxelGrid V {500, 0.5};   // 50m^3 space, 1.5x intersection factor
+    
+    // For sensor model output traversal
+    Ray rayIdx {};       
 
-    std::vector<float> voxel_grid(N*N*N, 0.f);
+    // Sensors
+    SensorModel cam0(Vector3D{-1, 0, 0}, Point3D{0, 0, 0}, 0);
+    //SensorModel cam1(Vector3D{0, -1, 0}, Point3D{500, 500, 0}, 1);
 
-	SensorModel cam0(Vector3D{-1, 0, 0}, Point3D{0, 0, 0}, 0);
-	//SensorModel cam1(Vector3D{0, -1, 0}, Point3D{500, 500, 0}, 1);
 
-	// For testing
-	Ray rayIdx {};
+
 
    // Spawn Python child process with popen (writes to child's stdin)
    FILE* pipe = popen("python3 ./src/visualize_ray.py", "w");  // Replace with your Python script path
@@ -43,19 +46,22 @@ int main(int argc, char** argv)
       return 1;
    }
 
+
+
+
+
 	for ever
 	{
 		cam0.ProcessImage();
-
-      if (!cam0.DetectedRay_W.empty())
-      {
-         rayIdx = cam0.DetectedRay_W.back();
-      }
+        // Need to add second processor
 
 		while (!cam0.DetectedRay_W.empty()) 
 		{
-			cam0.DetectedRay_W.pop_back();
-		}
+            rayIdx = cam0.DetectedRay_W.back();
+            cam0.DetectedRay_W.pop_back();
+            
+            // Here's where we do the grid traversal and processing for each output ray for each processor 
+        }
 
       float rayLength = 2.f;
       Point3D endPoint {};

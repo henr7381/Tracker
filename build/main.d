@@ -118,4 +118,4 @@
  /usr/local/include/opencv4/opencv2/cudaarithm.hpp \
  /usr/local/include/opencv4/opencv2/cudaimgproc.hpp \
  /usr/local/include/opencv4/opencv2/cudafilters.hpp Vector.h MathHelp.h \
- Test.h
+ Test.h VoxelGrid.h

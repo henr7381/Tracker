@@ -74,36 +74,6 @@ void SensorModel::ProcessImage()
     // Connected components with stats on CPU
     int nLabels = cv::connectedComponentsWithStats(fgmask, labels, stats, centroids, 8, CV_32S);
 
-
-    cv::Mat displayImage;
-    if (fgmask.channels() == 1) {
-        // Convert single-channel mask to 3-channel for visualization
-        cv::cvtColor(fgmask, displayImage, cv::COLOR_GRAY2BGR);
-    } else {
-        displayImage = fgmask.clone();
-    }
-
-    // Draw centroids on the image
-    for (int i = 1; i < nLabels; ++i) {
-        int area = stats.at<int>(i, cv::CC_STAT_AREA);
-        if (area >= minBlobArea) 
-        {
-            double x = centroids.at<double>(i, 0);
-            double y = centroids.at<double>(i, 1);
-            // Draw a small red circle at each centroid
-            cv::circle(displayImage, cv::Point(static_cast<int>(x), static_cast<int>(y)), 5, cv::Scalar(0, 0, 255), -1);
-        }
-    }
-
-    // Display the image with centroids in the window
-    cv::imshow("Filtered FGMask", displayImage);
-
-    // Display the image in the window
-    // cv::imshow("Filtered FGMask", fgmask);
-
-
-
-
     // Detect and draw/filter blobs
     for (int i = 1; i < nLabels; ++i) // Skip background (label 0)
     {  
