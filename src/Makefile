@@ -5,7 +5,7 @@ CXXFLAGS := -Wall -Wextra -std=c++17 -I.
 
 CXXFLAGS += $(shell pkg-config --cflags opencv4)
 
-LDFLAGS := $(shell pkg-config --libs opencv4)
+LDFLAGS := -L/usr/local/lib -lglfw -lGL $(shell pkg-config --libs opencv4)
 
 SRC_DIR := .
 BUILD_DIR := ../build

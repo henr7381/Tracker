@@ -22,8 +22,8 @@
 #include "MathHelp.h"
 
 
+// Neccesary defines
 using Result = std::variant<Ray, int>;
-
 #define MAXOBJECTS 10
 
 
