@@ -24,14 +24,20 @@
 
 using Result = std::variant<Ray, int>;
 
+#define MAXOBJECTS 10
+
 
 class SensorModel
 {
 public:
-	SensorModel(Vector3D worldPointingVector, Point3D origin);
+	SensorModel(Vector3D worldPointingVector, Point3D origin, uint8_t cameraStream);
 	void MainLoop();
 	Result detectedPixel(uint16_t x, uint16_t y);
 	void ProcessImage();
+	Ray* getRays();
+	void resetRays();
+
+	std::deque<Ray> DetectedRay_W;			// List of detections
 
 #ifndef TESTBUILD
 private:
@@ -51,7 +57,22 @@ private:
 	Vector3D CameraFrameY_W {};
 	Vector3D CameraFrameZ_W {};
 	Vector3D DetectedVector_L {};
-	Ray DetectedRay_W {};
+
+	std::string pipeline = "v4l2src device=/dev/video0 ! image/jpeg, width=2560, height=1440, framerate=30/1 ! jpegdec ! videoconvert ! appsink";
+	cv::VideoCapture cap;
+
+	// Create background subtractor
+    cv::Ptr<cv::cuda::BackgroundSubtractorMOG2> subtractor = cv::cuda::createBackgroundSubtractorMOG2(500, 16, true);
+
+    // Initialize variables
+    cv::Mat frame, fgmask, labels, stats, centroids;
+    cv::cuda::GpuMat gpu_frame, gpu_fgmask, gpuCleanMask;
+   
+    uint16_t minBlobArea = 1000;  // Ignore blobs smaller than this (needs tuned)
+    cv::Mat erodeKernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    cv::Mat dilateKernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    cv::Ptr<cv::cuda::Filter> erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, CV_8UC1, erodeKernel);
+    cv::Ptr<cv::cuda::Filter> dilateFilter = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, CV_8UC1, dilateKernel);
 };
 
 

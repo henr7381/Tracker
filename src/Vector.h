@@ -23,7 +23,6 @@ struct Point3D
 	{
 		return Point3D {x + p.x, y + p.y, z + p.z};
 	}
-
 };
 
 

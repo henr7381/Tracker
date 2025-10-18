@@ -4,8 +4,10 @@
 #define TEST_H
 
 // To build in test mode, uncomment this line VVV
-#define TESTBUILD
+//#define TESTBUILD
 
 void test();
+
+void test2();
 
 #endif

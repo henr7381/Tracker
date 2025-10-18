@@ -17,7 +17,7 @@ void test()
 {
 	printf("Beginning test =======================\n");
 
-	SensorModel cam1 (Vector3D {0.577350, 0.577350, 0.577350}, Point3D {0, 0, 0});
+	SensorModel cam1 (Vector3D {0.577350, 0.577350, 0.577350}, Point3D {0, 0, 0}, 0);
 
 	printf("Cam1 global location: (%lf, %lf, %lf,)\n", cam1.CameraLocation_W.x,
 							   cam1.CameraLocation_W.y,
@@ -60,7 +60,7 @@ void test()
 							     testValue.vector.y,
 							     testValue.vector.z);
 
-	SensorModel cam2 (Vector3D {1, 0, 0}, Point3D {0, 0, 0});
+	SensorModel cam2 (Vector3D {1, 0, 0}, Point3D {0, 0, 0}, 0);
 	
 	printf("Beginning cam2 main loop\n");
 
@@ -72,6 +72,43 @@ void test()
 
 	printf("Ending test ==========================\n");
 	return;
+}
+
+
+void test2()
+{
+
+	// GStreamer pipeline for MJPEG at 2560x1440, 30 FPS
+    
+    cv::VideoCapture ;
+    if (!cap.isOpened()) {
+        printf("Stream open error\n");
+        return;
+    }
+
+	cv::Mat frame;
+
+    while (true) 
+    {
+        // Capture frame
+        if (!cap.read(frame)) 
+        {
+            printf("Failed to capture a frame\n");
+            break;
+        }
+
+        cv::imshow("Origin", frame);
+
+        // Break loop on 'q' key press
+        if (cv::waitKey(1) == 'q') 
+        {
+            break;
+        }
+    }
+
+    // Release resources
+    cap.release();
+    cv::destroyAllWindows();
 }
 
 
