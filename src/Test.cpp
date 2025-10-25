@@ -8,6 +8,7 @@
 // User includes
 #include "Test.h"
 #include "SensorModel.h"
+#include "VoxelGrid.h"
 
 
 #ifdef TESTBUILD
@@ -80,7 +81,7 @@ void test2()
 
 	// GStreamer pipeline for MJPEG at 2560x1440, 30 FPS
     
-    cv::VideoCapture ;
+    cv::VideoCapture cap;
     if (!cap.isOpened()) {
         printf("Stream open error\n");
         return;
@@ -109,6 +110,22 @@ void test2()
     // Release resources
     cap.release();
     cv::destroyAllWindows();
+}
+
+
+void testGrid()
+{
+	uint16_t gridSize {300};
+	VoxelGrid V {gridSize, 1};
+
+	Ray R {Point3D{0,0,0}, Vector3D{0.57735, 0.57735, 0.57735}};
+
+	V.walkRay(R);
+
+	while (1)
+	{
+		RenderArray(gridSize, V.getData());
+	}
 }
 
 

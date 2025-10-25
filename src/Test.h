@@ -10,4 +10,6 @@ void test();
 
 void test2();
 
+void testGrid();
+
 #endif

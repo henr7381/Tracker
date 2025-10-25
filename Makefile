@@ -1,15 +1,15 @@
 # Makefile for the Tracker project
 
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17 -I.
 
+CXXFLAGS := -Wall -Wextra -std=c++17 -I.
 CXXFLAGS += $(shell pkg-config --cflags opencv4)
 
-LDFLAGS := -L/usr/local/lib -lglfw -lGL $(shell pkg-config --libs opencv4)
+LDFLAGS := -lglfw -lGL $(shell pkg-config --libs opencv4)
 
-SRC_DIR := .
-BUILD_DIR := ../build
-BIN_DIR := ../bin
+SRC_DIR := ./src
+BUILD_DIR := ./build
+BIN_DIR := ./bin
 TARGET := $(BIN_DIR)/Tracker
 
 MAIN_SRC := $(SRC_DIR)/main.cpp
@@ -40,6 +40,6 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
 .PHONY: all clean

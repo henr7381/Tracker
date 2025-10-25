@@ -1,1 +1,1 @@
-../build/VoxelGrid.o: VoxelGrid.cpp VoxelGrid.h Vector.h
+build/VoxelGrid.o: src/VoxelGrid.cpp src/VoxelGrid.h src/Vector.h

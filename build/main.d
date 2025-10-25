@@ -1,4 +1,4 @@
-../build/main.o: main.cpp SensorModel.h \
+build/main.o: src/main.cpp src/SensorModel.h \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -117,5 +117,5 @@
  /usr/local/include/opencv4/opencv2/cudabgsegm.hpp \
  /usr/local/include/opencv4/opencv2/cudaarithm.hpp \
  /usr/local/include/opencv4/opencv2/cudaimgproc.hpp \
- /usr/local/include/opencv4/opencv2/cudafilters.hpp Vector.h MathHelp.h \
- Test.h VoxelGrid.h
+ /usr/local/include/opencv4/opencv2/cudafilters.hpp src/Vector.h \
+ src/MathHelp.h src/Test.h src/VoxelGrid.h

@@ -7,29 +7,38 @@
 
 // Includes
 #include <cstdint>
+#include <cmath>
 #include <vector>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <semaphore.h>
+#include <cstring>
+#include <stdio.h>
+#include <string>
+#include <cstdlib>
 
 
 // User includes
 #include "Vector.h"
 
 
-// Neccesary defines
-
-
 class VoxelGrid
 {
 public:
-    VoxelGrid(uint16_t N, float darkenFactor);  
+    VoxelGrid(uint16_t N, uint8_t darkenFactor);  
     void walkRay(Ray input);
 
 #ifndef TESTBUILD
 private:
 #endif
-    std::vector<float> voxel_grid;
+    //std::vector<uint8_t> voxel_grid {0};
+    uint8_t* voxel_grid;        // Pointer to the shared memory array
     uint16_t vectorSize {};
+    uint16_t memSize {}; 
 
-    double darkenFactor {1.f};
+    uint8_t darkenFactor {};
     int16_t stepX {};
     int16_t stepY {};
     int16_t stepZ {};
@@ -43,6 +52,11 @@ private:
     int16_t boundy {};
     int16_t boundz {};
 
+    const char* SHM_NAME = "/voxelGrid";
+    const char* SEM_NAME = "/voxelGridSemaphore";
+    sem_t* update_sem {};
+
+    void markVoxel(Point3D p);
 };
 
 
