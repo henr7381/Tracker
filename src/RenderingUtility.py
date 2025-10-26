@@ -13,6 +13,8 @@ SEM_NAME = "/voxelGridSemaphore"
 if __name__ == "__main__":
     gridDim = int(sys.argv[1])
 
+    print("=======> " + str(gridDim))
+
     bufferSize = gridDim * gridDim * gridDim
 
     shm = shared_memory.SharedMemory(name=SHM_NAME, create=False, size=bufferSize)
